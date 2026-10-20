@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10111a">
+  <title>Goals Achiever — Plan your month. Win your day.</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10111a;
+      --surface: #171923;
+      --surface-2: #1d202c;
+      --surface-3: #252837;
+      --border: rgba(255,255,255,.075);
+      --text: #f3f2fb;
+      --muted: #9497aa;
+      --purple: #9a7bff;
+      --purple-soft: rgba(154,123,255,.14);
+      --blue: #63a8ff;
+      --green: #57d6a0;
+      --orange: #ffb86a;
+      --pink: #f27db2;
+      --shadow: 0 20px 60px rgba(0,0,0,.22);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 76% -18%, rgba(112,86,207,.13), transparent 38%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .app { min-height: 100vh; }
+    .sidebar {
+      width: 246px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 16px 18px;
+      background: rgba(18,19,28,.94);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 9px 29px; }
+    .brand-mark {
+      width: 36px; height: 36px; display: grid; place-items: center;
+      border-radius: 12px; color: white; font-size: 18px; font-weight: 800;
+      background: linear-gradient(145deg, #b69cff, #7356e8);
+      box-shadow: 0 6px 22px rgba(128,93,255,.35);
+    }
+    .brand-name { font-size: 15px; font-weight: 730; letter-spacing: -.3px; }
+    .brand-caption { color: var(--muted); font-size: 10px; margin-top: 2px; letter-spacing: .15px; }
+    .nav-label { color: #666a7f; font-size: 10px; font-weight: 750; letter-spacing: 1.2px; padding: 0 11px 9px; }
+    .nav { display: grid; gap: 4px; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 11px;
+      border: 0; border-radius: 9px; background: transparent; color: #a4a6b7;
+      text-align: left; cursor: pointer; transition: .18s ease;
+    }
+    .nav-link:hover { background: rgba(255,255,255,.045); color: var(--text); }
+    .nav-link.active { color: #c9baff; background: var(--purple-soft); font-weight: 650; }
+    .nav-icon { width: 19px; text-align: center; font-size: 16px; }
+    .nav-count { margin-left: auto; color: #777b91; font-size: 11px; }
+    .sidebar-bottom { margin-top: auto; }
+    .focus-card {
+      margin: 0 2px 17px; padding: 15px; border-radius: 13px; overflow: hidden;
+      background: linear-gradient(145deg, rgba(126,95,220,.2), rgba(75,79,151,.09));
+      border: 1px solid rgba(165,139,255,.14);
+    }
+    .focus-card strong { display: block; font-size: 12px; margin: 9px 0 4px; }
+    .focus-card p { color: #a4a5b7; font-size: 11px; line-height: 1.55; margin: 0 0 12px; }
+    .focus-symbol { color: #c0aeff; font-size: 19px; }
+    .focus-button { border: 0; background: transparent; padding: 0; color: #c0aeff; font-size: 11px; cursor: pointer; }
+    .profile { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--border); padding: 16px 7px 0; }
+    .avatar { width: 33px; height: 33px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg,#8d78eb,#4b73ad); font-size: 11px; font-weight: 700; }
+    .profile-name { font-size: 12px; font-weight: 650; }
+    .profile-note { color: var(--muted); font-size: 10px; margin-top: 3px; }
+    .main { min-height: 100vh; margin-left: 246px; padding: 0 36px 40px; }
+    .topbar { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--border); }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb strong { color: #deddeb; font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .today-label { color: #a7a9b8; font-size: 12px; }
+    .icon-button { width: 35px; height: 35px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: #b7b8c5; cursor: pointer; }
+    .icon-button:hover { border-color: #6855a3; color: white; }
+    .mobile-menu { display: none; }
+    .content { max-width: 1320px; margin: 0 auto; }
+    .welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 31px 0 24px; }
+    .eyebrow { color: #ad94ff; font-weight: 650; font-size: 11px; letter-spacing: .65px; text-transform: uppercase; }
+    h1 { margin: 7px 0 6px; font-size: clamp(25px,3vw,31px); letter-spacing: -1.1px; font-weight: 690; }
+    .welcome p { color: var(--muted); margin: 0; font-size: 13px; }
+    .primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border: 0; border-radius: 9px; color: white; font-weight: 650; font-size: 12px; cursor: pointer; background: linear-gradient(135deg,#9879fa,#7558dd); box-shadow: 0 6px 18px rgba(120,88,221,.2); transition: transform .15s, filter .15s; }
+    .primary-button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .stat-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
+    .card { background: linear-gradient(155deg,rgba(27,29,41,.97),rgba(23,25,35,.97)); border: 1px solid var(--border); border-radius: 13px; }
+    .stat-card { padding: 17px 18px 16px; min-height: 124px; }
+    .stat-heading { display: flex; justify-content: space-between; align-items: center; color: #a4a6b6; font-size: 11px; }
+    .stat-icon { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; font-size: 14px; }
+    .tint-purple { color: #b8a5ff; background: rgba(154,123,255,.14); }
+    .tint-blue { color: #83bdff; background: rgba(99,168,255,.13); }
+    .tint-green { color: #7be0b5; background: rgba(87,214,160,.13); }
+    .tint-orange { color: #ffc68a; background: rgba(255,184,106,.13); }
+    .stat-value { font-size: 26px; letter-spacing: -.8px; font-weight: 690; margin-top: 12px; }
+    .stat-foot { color: #85899b; font-size: 10px; margin-top: 3px; }
+    .stat-foot .up { color: var(--green); }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(270px,.9fr); gap: 15px; margin-top: 16px; }
+    .panel { padding: 19px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .panel-title { margin: 0; font-size: 14px; font-weight: 660; letter-spacing: -.15px; }
+    .panel-subtitle { color: var(--muted); font-size: 10px; margin-top: 5px; }
+    .text-button { color: #b5a3ff; border: 0; background: transparent; cursor: pointer; font-size: 11px; padding: 5px; }
+    .text-button:hover { color: white; }
+    .select-small { border: 1px solid var(--border); background: var(--surface-2); color: #b4b6c5; border-radius: 7px; padding: 6px 9px; font-size: 10px; outline: none; }
+    .chart-wrap { height: 176px; position: relative; }
+    .chart-wrap svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-grid { stroke: rgba(255,255,255,.07); stroke-dasharray: 4 5; }
+    .chart-label { fill: #7f8295; font-size: 10px; font-family: inherit; }
+    .chart-line { fill: none; stroke: #a18aff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-area { fill: url(#chartFill); }
+    .chart-dot { fill: #b8a5ff; stroke: #282139; stroke-width: 3; }
+    .day-tasks { display: grid; gap: 0; }
+    .task-row { display: flex; align-items: center; gap: 11px; min-height: 58px; border-top: 1px solid rgba(255,255,255,.055); }
+    .task-check { appearance: none; flex: 0 0 auto; width: 17px; height: 17px; border: 1px solid #5e6276; border-radius: 5px; cursor: pointer; position: relative; }
+    .task-check:checked { background: #8e72ed; border-color: #8e72ed; }
+    .task-check:checked::after { content: "✓"; position: absolute; inset: -1px 0 0; display: grid; place-items: center; color: white; font-size: 11px; }
+    .task-info { min-width: 0; flex: 1; }
+    .task-name { font-size: 11px; font-weight: 560; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-name.done { color: #777b8c; text-decoration: line-through; }
+    .task-meta { color: #888b9c; font-size: 10px; margin-top: 4px; }
+    .priority { border-radius: 20px; padding: 4px 7px; font-size: 9px; white-space: nowrap; }
+    .priority.High { color: #ff9eae; background: rgba(242,125,178,.1); }
+    .priority.Medium { color: #ffc47d; background: rgba(255,184,106,.1); }
+    .priority.Low { color: #8bdab7; background: rgba(87,214,160,.1); }
+    .progress-content { display: flex; justify-content: center; align-items: center; padding: 2px 0 10px; }
+    .ring {
+      width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center;
+      background: conic-gradient(var(--purple) var(--progress, 0%), #303240 0);
+      position: relative;
+    }
+    .ring::before { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: #1b1d29; }
+    .ring-label { position: relative; text-align: center; }
+    .ring-value { font-size: 30px; letter-spacing: -1px; font-weight: 700; }
+    .ring-caption { color: var(--muted); font-size: 10px; margin-top: 2px; }
+    .goal-summary { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid rgba(255,255,255,.055); }
+    .goal-summary span { color: #a3a5b4; font-size: 11px; }
+    .goal-summary strong { font-size: 11px; font-weight: 600; }
+    .goal-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--purple); }
+    .bottom-grid { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 15px; margin-top: 15px; }
+    .week-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+    .week-day { text-align: center; color: #777b8e; font-size: 9px; }
+    .week-bar-track { height: 76px; display: flex; align-items: flex-end; justify-content: center; margin: 9px 0 7px; }
+    .week-bar { width: 17px; min-height: 5px; border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg,#a18aff,#6652bd); opacity: .8; }
+    .week-bar.today { background: linear-gradient(180deg,#74b6ff,#6384e8); opacity: 1; }
+    .week-date { color: #d7d7e1; font-size: 10px; }
+    .week-hours { color: #85899a; font-size: 9px; margin-top: 4px; }
+    .focus-content { display: flex; align-items: center; gap: 15px; padding: 4px 0 1px; }
+    .focus-emoji { width: 49px; height: 49px; display: grid; place-items: center; border-radius: 13px; background: rgba(99,168,255,.13); font-size: 21px; }
+    .focus-copy strong { font-size: 12px; }
+    .focus-copy p { color: var(--muted); font-size: 10px; line-height: 1.5; margin: 5px 0 0; }
+    .page-view { padding-top: 31px; }
+    .page-view h1 { margin-top: 7px; }
+    .page-view .page-description { color: var(--muted); font-size: 13px; margin: 0 0 23px; }
+    .list-panel { padding: 20px; }
+    .data-list { margin-top: 2px; }
+    .data-row { display: flex; align-items: center; gap: 13px; padding: 14px 2px; border-top: 1px solid rgba(255,255,255,.055); }
+    .data-main { flex: 1; min-width: 0; }
+    .data-title { font-size: 12px; font-weight: 600; }
+    .data-detail { color: var(--muted); font-size: 10px; margin-top: 5px; }
+    .data-status { color: #a99aff; font-size: 10px; background: var(--purple-soft); border-radius: 20px; padding: 5px 8px; white-space: nowrap; }
+    .delete-button { border: 0; background: transparent; color: #727688; cursor: pointer; font-size: 16px; padding: 5px; }
+    .delete-button:hover { color: #ff9eae; }
+    .empty-state { color: var(--muted); text-align: center; padding: 35px 10px; font-size: 12px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1/-1; }
+    .field label { color: #aeb0bf; font-size: 10px; }
+    .field input, .field select {
+      width: 100%; min-height: 38px; border: 1px solid var(--border); border-radius: 8px;
+      background: #13151e; color: var(--text); padding: 8px 10px; outline: none;
+    }
+    .field input:focus, .field select:focus { border-color: #8d73ec; box-shadow: 0 0 0 3px rgba(154,123,255,.1); }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 18px; background: rgba(4,5,10,.72); backdrop-filter: blur(5px); }
+    .modal { width: min(100%,460px); background: #1b1d29; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; box-shadow: var(--shadow); padding: 22px; }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
+    .modal-head h2 { margin: 0; font-size: 17px; }
+    .modal-head p { margin: 5px 0 0; font-size: 11px; color: var(--muted); }
+    .close-button { border: 0; background: transparent; color: #a0a2b1; font-size: 21px; cursor: pointer; line-height: 1; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 17px; }
+    .secondary-button { border: 1px solid var(--border); border-radius: 8px; background: transparent; color: #b3b5c4; padding: 9px 13px; cursor: pointer; font-size: 11px; }
+    .toast { position: fixed; z-index: 15; right: 22px; bottom: 22px; padding: 11px 15px; background: #262938; border: 1px solid var(--border); border-radius: 9px; box-shadow: var(--shadow); color: #deddea; font-size: 12px; animation: toast-in .2s ease-out; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 1050px) {
+      .main { padding-left: 25px; padding-right: 25px; }
+      .stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 760px) {
+      .sidebar { transform: translateX(-100%); transition: transform .22s ease; box-shadow: var(--shadow); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 0 17px 30px; }
+      .topbar { min-height: 64px; }
+      .mobile-menu { display: grid; }
+      .topbar-left { display: flex; align-items: center; gap: 11px; }
+      .dashboard-grid, .bottom-grid { grid-template-columns: 1fr; }
+      .welcome { align-items: flex-start; }
+      .today-label { display: none; }
+    }
+    @media (max-width: 480px) {
+      .main { padding-left: 13px; padding-right: 13px; }
+      .welcome { padding: 25px 0 19px; gap: 8px; }
+      .welcome h1 { font-size: 24px; }
+      .welcome p { max-width: 245px; line-height: 1.5; }
+      .welcome .primary-button { padding: 9px 10px; font-size: 10px; white-space: nowrap; }
+      .stat-grid { gap: 9px; }
+      .stat-card { padding: 13px; min-height: 112px; }
+      .stat-value { font-size: 23px; }
+      .stat-heading { font-size: 10px; }
+      .panel { padding: 15px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .data-row { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">G</div>
+        <div><div class="brand-name">Goals Achiever</div><div class="brand-caption">YOUR PERSONAL GROWTH SPACE</div></div>
+      </div>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-link active" data-page="dashboard"><span class="nav-icon">◫</span>Dashboard</button>
+        <button class="nav-link" data-page="planner"><span class="nav-icon">▦</span>Study planner</button>
+        <button class="nav-link" data-page="assignments"><span class="nav-icon">☑</span>Assignments<span class="nav-count" id="assignment-count"></span></button>
+        <button class="nav-link" data-page="projects"><span class="nav-icon">⌘</span>Projects</button>
+        <button class="nav-link" data-page="goals"><span class="nav-icon">◎</span>Monthly goals</button>
+        <button class="nav-link" data-page="skills"><span class="nav-icon">✳</span>Skills</button>
+        <button class="nav-link" data-page="money"><span class="nav-icon">＄</span>Money</button>
+        <button class="nav-link" data-page="fitness"><span class="nav-icon">♡</span>Fitness</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="focus-card">
+          <div class="focus-symbol">✦</div>
+          <strong>Make today count</strong>
+          <p>Small, consistent steps create remarkable progress.</p>
+          <button class="focus-button" id="focus-button">＋ Add a task</button>
+        </div>
+        <div class="profile">
+          <div class="avatar">GA</div>
+          <div><div class="profile-name">My workspace</div><div class="profile-note">Personal dashboard</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button mobile-menu" id="menu-button" aria-label="Open navigation">☰</button>
+          <div class="breadcrumb">Workspace <span style="color:#55596a;margin:0 7px">/</span> <strong id="breadcrumb-page">Dashboard</strong></div>
+        </div>
+        <div class="top-actions">
+          <span class="today-label" id="today-label"></span>
+          <button class="icon-button" id="header-add" aria-label="Add new item" title="Add new item">＋</button>
+        </div>
+      </header>
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast-root" aria-live="polite"></div>
+  <script>
+    (function () {
+      "use strict";
+      const storageKey = "goals-achiever-data-v1";
+      const today = new Date();
+      const isoDate = (date) => {
+        const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return local.toISOString().slice(0, 10);
+      };
+      const todayISO = isoDate(today);
+      const sampleDueDate = new Date(today);
+      sampleDueDate.setDate(sampleDueDate.getDate() + 3);
+      const defaultData = {
+        tasks: [
+          { id: 1, title: "Review data structures & algorithms", detail: "Study session · 9:00 AM", date: todayISO, priority: "High", done: false },
+          { id: 2, title: "Finish SQL practice exercises", detail: "Skills · 11:30 AM", date: todayISO, priority: "Medium", done: false },
+          { id: 3, title: "Read chapter 4 — Linear algebra", detail: "Study session · 2:00 PM", date: todayISO, priority: "Low", done: true },
+          { id: 4, title: "Update portfolio project README", detail: "Project · 4:00 PM", date: todayISO, priority: "Medium", done: false },
+          { id: 13, title: "Submit database design assignment", detail: "Assignment · due " + new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(sampleDueDate), date: isoDate(sampleDueDate), priority: "High", done: false, category: "assignment" }
+        ],
+        goals: [
+          { id: 2, title: "Study 60 focused hours", detail: "Learning · 32 of 60 hours", status: "In progress", progress: 53 },
+          { id: 3, title: "Complete 2 portfolio projects", detail: "Career · 1 of 2 projects", status: "In progress", progress: 50 },
+          { id: 4, title: "Save $300 this month", detail: "Finance · $185 of $300", status: "In progress", progress: 62 }
+        ],
+        projects: [
+          { id: 5, title: "Personal portfolio website", detail: "github.com/you/portfolio · Building a portfolio", status: "In progress" },
+          { id: 6, title: "Study tracker app", detail: "github.com/you/study-tracker · Learning project", status: "Planned" }
+        ],
+        skills: [
+          { id: 7, title: "JavaScript", detail: "Frontend development", status: "Intermediate", progress: 65 },
+          { id: 8, title: "Python", detail: "Programming fundamentals", status: "Intermediate", progress: 52 },
+          { id: 9, title: "SQL", detail: "Databases & querying", status: "Learning", progress: 38 },
+          { id: 10, title: "Data structures & algorithms", detail: "Problem solving", status: "Learning", progress: 31 }
+        ],
+        transactions: [
+          { id: 11, title: "Monthly savings goal", detail: "Target · $300", status: "$185 saved" }
+        ],
+        workouts: [
+          { id: 12, title: "Weekly movement goal", detail: "Target · 4 workouts", status: "2 of 4" }
+        ]
+      };
+      let data;
+      try {
+        const saved = localStorage.getItem(storageKey);
+        data = saved ? Object.assign({}, defaultData, JSON.parse(saved)) : defaultData;
+      } catch (error) {
+        console.error("Could not load saved dashboard data.", error);
+        data = defaultData;
+      }
+      let activePage = "dashboard";
+      let nextId = Math.max(0, ...Object.values(data).flat().map((item) => Number(item.id) || 0)) + 1;
+      const content = document.getElementById("content");
+      const pageNames = {
+        dashboard: "Dashboard", planner: "Study planner", assignments: "Assignments",
+        projects: "Projects", goals: "Monthly goals", skills: "Skills", money: "Money", fitness: "Fitness"
+      };
+      const pageConfig = {
+        planner: { title: "Study planner", description: "Organize study sessions and build a steady learning routine.", key: "tasks", action: "Add study session", icon: "▦" },
+        assignments: { title: "Assignments", description: "Keep deadlines visible and make your next submission feel manageable.", key: "tasks", action: "Add assignment", icon: "☑", filter: "assignment" },
+        projects: { title: "Projects", description: "Track personal projects, coding goals and repository progress.", key: "projects", action: "Add project", icon: "⌘" },
+        goals: { title: "Monthly goals", description: "Turn your bigger ambitions into clear, measurable monthly targets.", key: "goals", action: "Add a goal", icon: "◎" },
+        skills: { title: "Skills tracker", description: "Make your learning visible and celebrate progress as you improve.", key: "skills", action: "Add a skill", icon: "✳" },
+        money: { title: "Money", description: "Keep an eye on savings targets and personal spending.", key: "transactions", action: "Add money note", icon: "＄" },
+        fitness: { title: "Fitness", description: "Build consistency by keeping your movement goals in view.", key: "workouts", action: "Log activity", icon: "♡" }
+      };
+
+      function save() {
+        try { localStorage.setItem(storageKey, JSON.stringify(data)); }
+        catch (error) { console.error("Could not save dashboard data.", error); toast("Your browser could not save this update."); }
+      }
+      function escapeHTML(value) {
+        return String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[char]);
+      }
+      function toast(message) {
+        const root = document.getElementById("toast-root");
+        root.innerHTML = '<div class="toast">' + escapeHTML(message) + '</div>';
+        window.setTimeout(() => { root.innerHTML = ""; }, 2600);
+      }
+      function formattedDate(date) {
+        return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(date);
+      }
+      document.getElementById("today-label").textContent = formattedDate(today);
+
+      function getTasks() { return data.tasks || []; }
+      function getTodayTasks() { return getTasks().filter((task) => task.date === todayISO); }
+      function getProgress() {
+        const tasks = getTodayTasks();
+        return tasks.length ? Math.round(tasks.filter((task) => task.done).length * 100 / tasks.length) : 0;
+      }
+      function taskMarkup(task, withPriority) {
+        return '<div class="task-row"><input class="task-check" type="checkbox" data-task-check="' + task.id + '" ' + (task.done ? "checked" : "") + ' aria-label="Mark ' + escapeHTML(task.title) + ' complete">' +
+          '<div class="task-info"><div class="task-name ' + (task.done ? "done" : "") + '">' + escapeHTML(task.title) + '</div><div class="task-meta">' + escapeHTML(task.detail || "No details") + '</div></div>' +
+          (withPriority ? '<span class="priority ' + escapeHTML(task.priority || "Low") + '">' + escapeHTML(task.priority || "Low") + '</span>' : '') + '</div>';
+      }
+      function dashboardMarkup() {
+        const tasks = getTodayTasks();
+        const done = tasks.filter((task) => task.done).length;
+        const goalsInProgress = (data.goals || []).filter((goal) => goal.status !== "Done").length;
+        const pending = (data.tasks || []).filter((task) => !task.done).length;
+        const chartHeights = [36, 52, 42, 70, 61, 83, Math.max(18, getProgress())];
+        const weekdays = ["M", "T", "W", "T", "F", "S", "S"];
+        const chartPoints = chartHeights.map((height, i) => (44 + i * 55) + "," + (139 - height)).join(" ");
+        const chartDots = chartHeights.map((height, i) => '<circle class="chart-dot" cx="' + (44 + i * 55) + '" cy="' + (139 - height) + '" r="4"></circle>').join("");
+        const weekly = weekdays.map((day, i) => '<div class="week-day">' + day + '<div class="week-bar-track"><div class="week-bar ' + (i === 6 ? "today" : "") + '" style="height:' + chartHeights[i] + '%"></div></div><div class="week-date">' + (today.getDate() - ((today.getDay() + 6) % 7) + i) + '</div><div class="week-hours">' + (i === 6 ? "Today" : (i + 1) + "h") + '</div></div>').join("");
+        const goals = (data.goals || []).slice(0, 3);
+        content.innerHTML =
+          '<section class="welcome"><div><div class="eyebrow">Your personal growth space</div><h1>Let’s make today count.</h1><p>A little progress each day adds up to big results.</p></div><button class="primary-button" data-action="add"><span>＋</span> Add new item</button></section>' +
+          '<section class="stat-grid" aria-label="Today at a glance">' +
+            '<article class="card stat-card"><div class="stat-heading">Today’s progress<span class="stat-icon tint-purple">◉</span></div><div class="stat-value">' + getProgress() + '%</div><div class="stat-foot"><span class="up">' + done + ' completed</span> of ' + tasks.length + ' planned tasks</div></article>' +
+            '<article class="card stat-card"><div class="stat-heading">Tasks to complete<span class="stat-icon tint-blue">☑</span></div><div class="stat-value">' + pending + '</div><div class="stat-foot">Across all your plans</div></article>' +
+            '<article class="card stat-card"><div class="stat-heading">Active monthly goals<span class="stat-icon tint-green">◎</span></div><div class="stat-value">' + goalsInProgress + '</div><div class="stat-foot">Keep showing up for yourself</div></article>' +
+            '<article class="card stat-card"><div class="stat-heading">Study streak<span class="stat-icon tint-orange">✦</span></div><div class="stat-value">5 days</div><div class="stat-foot"><span class="up">You’re building momentum</span></div></article>' +
+          '</section>' +
+          '<section class="dashboard-grid">' +
+            '<article class="card panel"><div class="panel-head"><div><h2 class="panel-title">Weekly activity</h2><div class="panel-subtitle">Your consistency, one day at a time</div></div><select class="select-small" aria-label="Activity period"><option>This week</option><option>This month</option></select></div>' +
+              '<div class="chart-wrap"><svg viewBox="0 0 400 170" preserveAspectRatio="none" role="img" aria-label="Weekly activity trend"><defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#9a7bff" stop-opacity=".25"/><stop offset="100%" stop-color="#9a7bff" stop-opacity="0"/></linearGradient></defs>' +
+              '<line class="chart-grid" x1="30" y1="28" x2="390" y2="28"/><line class="chart-grid" x1="30" y1="70" x2="390" y2="70"/><line class="chart-grid" x1="30" y1="112" x2="390" y2="112"/>' +
+              '<path class="chart-area" d="M ' + chartPoints.replace(/ /g, " L ") + ' L 374,145 L 44,145 Z"/><polyline class="chart-line" points="' + chartPoints + '"/>' + chartDots +
+              '<text class="chart-label" x="34" y="163">Mon</text><text class="chart-label" x="89" y="163">Tue</text><text class="chart-label" x="144" y="163">Wed</text><text class="chart-label" x="199" y="163">Thu</text><text class="chart-label" x="254" y="163">Fri</text><text class="chart-label" x="309" y="163">Sat</text><text class="chart-label" x="364" y="163">Sun</text></svg></div></article>' +
+            '<article class="card panel"><div class="panel-head"><div><h2 class="panel-title">Today’s focus</h2><div class="panel-subtitle">' + done + ' of ' + tasks.length + ' tasks completed</div></div><button class="text-button" data-page-link="planner">View planner →</button></div>' +
+              '<div class="progress-content"><div class="ring" style="--progress:' + getProgress() + '%"><div class="ring-label"><div class="ring-value">' + getProgress() + '%</div><div class="ring-caption">daily progress</div></div></div></div>' +
+              goals.map((goal) => '<div class="goal-summary"><span><i class="goal-dot"></i>' + escapeHTML(goal.title) + '</span><strong>' + (Number(goal.progress) || 0) + '%</strong></div>').join("") + '</article>' +
+          '</section>' +
+          '<section class="bottom-grid">' +
+            '<article class="card panel"><div class="panel-head"><div><h2 class="panel-title">Today’s plan</h2><div class="panel-subtitle">Your next steps for a focused day</div></div><button class="text-button" data-page-link="planner">See all →</button></div>' +
+              '<div class="day-tasks">' + (tasks.length ? tasks.slice(0, 4).map((task) => taskMarkup(task, true)).join("") : '<div class="empty-state">Nothing planned for today. Add a task to get started.</div>') + '</div></article>' +
+            '<article class="card panel"><div class="panel-head"><div><h2 class="panel-title">This week</h2><div class="panel-subtitle">Your daily rhythm</div></div><span class="stat-icon tint-blue">↗</span></div><div class="week-days">' + weekly + '</div></article>' +
+          '</section>';
+      }
+
+      function itemDetail(item, config) {
+        if (config.key === "tasks") {
+          const date = item.date ? new Date(item.date + "T00:00:00") : null;
+          return (date ? formattedDate(date) : "No date") + " · " + escapeHTML(item.priority || "Low") + " priority";
+        }
+        return escapeHTML(item.detail || item.status || "");
+      }
+      function listMarkup(config) {
+        const records = (data[config.key] || []).filter((item) => {
+          if (config.filter === "assignment") return item.category === "assignment";
+          return true;
+        });
+        const list = records.map((item) => {
+          const status = config.key === "tasks" ? (item.done ? "Completed" : "To do") : (item.status || "In progress");
+          return '<div class="data-row">' +
+            (config.key === "tasks" ? '<input class="task-check" type="checkbox" data-task-check="' + item.id + '" ' + (item.done ? "checked" : "") + ' aria-label="Mark ' + escapeHTML(item.title) + ' complete">' : '') +
+            '<div class="data-main"><div class="data-title">' + escapeHTML(item.title) + '</div><div class="data-detail">' + itemDetail(item, config) + '</div>' +
+            (typeof item.progress === "number" ? '<div style="height:4px;background:#303240;border-radius:5px;margin-top:9px;max-width:240px"><div style="height:100%;width:' + Math.max(0, Math.min(100, item.progress)) + '%;background:#9a7bff;border-radius:5px"></div></div>' : '') +
+            '</div><span class="data-status">' + escapeHTML(status) + '</span><button class="delete-button" data-delete="' + config.key + ':' + item.id + '" aria-label="Delete ' + escapeHTML(item.title) + '" title="Delete">×</button></div>';
+        }).join("");
+        const safeId = config.key;
+        content.innerHTML = '<section class="page-view"><div class="eyebrow">' + config.icon + '  YOUR WORKSPACE</div><h1>' + config.title + '</h1><p class="page-description">' + config.description + '</p>' +
+          '<article class="card list-panel"><div class="panel-head"><div><h2 class="panel-title">Your ' + config.title.toLowerCase() + '</h2><div class="panel-subtitle">' + records.length + ' item' + (records.length === 1 ? "" : "s") + ' · Saved on this device</div></div><button class="primary-button" data-action="add">＋ ' + config.action + '</button></div>' +
+          '<div class="data-list">' + (list || '<div class="empty-state">No items yet. Add one to get started.</div>') + '</div></article>' +
+          '<div class="panel-subtitle" style="margin:13px 2px 0">This starter version saves your entries privately in this browser.</div></section>';
+      }
+      function render() {
+        document.querySelectorAll(".nav-link").forEach((link) => link.classList.toggle("active", link.dataset.page === activePage));
+        document.getElementById("breadcrumb-page").textContent = pageNames[activePage];
+        document.getElementById("assignment-count").textContent = (data.tasks || []).filter((task) => task.category === "assignment" && !task.done).length || "";
+        if (activePage === "dashboard") dashboardMarkup();
+        else listMarkup(pageConfig[activePage]);
+      }
+      function navigate(page) {
+        if (!pageNames[page]) return;
+        activePage = page;
+        document.getElementById("sidebar").classList.remove("open");
+        render();
+      }
+      function showModal() {
+        const config = pageConfig[activePage] || pageConfig.planner;
+        let kind = activePage;
+        if (kind === "dashboard") kind = "planner";
+        const fields = {
+          planner: '<div class="field full"><label for="item-title">Session or task name</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Practice JavaScript arrays"></div><div class="field"><label for="item-date">Date</label><input id="item-date" name="date" type="date" value="' + todayISO + '" required></div><div class="field"><label for="item-priority">Priority</label><select id="item-priority" name="priority"><option>Medium</option><option>High</option><option>Low</option></select></div><div class="field full"><label for="item-time">Time or note</label><input id="item-time" name="detail" maxlength="100" placeholder="e.g. 10:00 AM · 45 minutes"></div>',
+          assignments: '<div class="field full"><label for="item-title">Assignment name</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Complete biology lab report"></div><div class="field"><label for="item-date">Due date</label><input id="item-date" name="date" type="date" value="' + todayISO + '" required></div><div class="field"><label for="item-priority">Priority</label><select id="item-priority" name="priority"><option>High</option><option>Medium</option><option>Low</option></select></div>',
+          projects: '<div class="field full"><label for="item-title">Project name</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Personal portfolio website"></div><div class="field full"><label for="item-detail">Repository or description</label><input id="item-detail" name="detail" maxlength="160" placeholder="github.com/you/project"></div><div class="field full"><label for="item-status">Stage</label><select id="item-status" name="status"><option>Planned</option><option>In progress</option><option>Completed</option></select></div>',
+          goals: '<div class="field full"><label for="item-title">Monthly goal</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Complete 20 hours of study"></div><div class="field"><label for="item-detail">Category or target</label><input id="item-detail" name="detail" maxlength="100" placeholder="Learning · 20 hours"></div><div class="field"><label for="item-progress">Progress (%)</label><input id="item-progress" name="progress" type="number" min="0" max="100" value="0"></div>',
+          skills: '<div class="field full"><label for="item-title">Skill</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Python"></div><div class="field"><label for="item-detail">Focus area</label><input id="item-detail" name="detail" maxlength="100" placeholder="Programming fundamentals"></div><div class="field"><label for="item-progress">Progress (%)</label><input id="item-progress" name="progress" type="number" min="0" max="100" value="0"></div>',
+          money: '<div class="field full"><label for="item-title">Savings target or note</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Emergency fund"></div><div class="field full"><label for="item-detail">Amount or details</label><input id="item-detail" name="detail" maxlength="100" placeholder="Target · $500"></div>',
+          fitness: '<div class="field full"><label for="item-title">Activity or fitness goal</label><input id="item-title" name="title" required maxlength="100" placeholder="e.g. Evening run"></div><div class="field full"><label for="item-detail">Target or details</label><input id="item-detail" name="detail" maxlength="100" placeholder="30 minutes · 3 times this week"></div>'
+        };
+        const modalRoot = document.getElementById("modal-root");
+        modalRoot.innerHTML = '<div class="modal-backdrop" data-dismiss="true"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">' + config.action + '</h2><p>Add something meaningful to your plan.</p></div><button class="close-button" type="button" data-close aria-label="Close">×</button></div><form id="item-form"><div class="form-grid">' + fields[kind] + '</div><div class="modal-actions"><button class="secondary-button" type="button" data-close>Cancel</button><button class="primary-button" type="submit">Save item</button></div></form></section></div>';
+        document.getElementById("item-title").focus();
+      }
+      function saveForm(form) {
+        const values = Object.fromEntries(new FormData(form).entries());
+        const kind = activePage === "dashboard" ? "planner" : activePage;
+        const record = { id: nextId++, title: String(values.title || "").trim() };
+        if (!record.title) return;
+        if (kind === "planner" || kind === "assignments") {
+          record.detail = kind === "assignments" ? "Assignment · Due " + values.date : (values.detail || "Study session");
+          record.date = values.date || todayISO;
+          record.priority = values.priority || "Medium";
+          record.done = false;
+          if (kind === "assignments") record.category = "assignment";
+          data.tasks.unshift(record);
+        } else {
+          const key = pageConfig[kind].key;
+          record.detail = String(values.detail || "").trim();
+          if (kind === "projects") record.status = values.status;
+          if (kind === "goals") { record.status = "In progress"; record.progress = Number(values.progress) || 0; }
+          if (kind === "skills") { record.status = (Number(values.progress) || 0) >= 60 ? "Intermediate" : "Learning"; record.progress = Number(values.progress) || 0; }
+          if (kind === "money") record.status = "Tracking";
+          if (kind === "fitness") record.status = "Logged";
+          data[key].unshift(record);
+        }
+        save();
+        document.getElementById("modal-root").innerHTML = "";
+        render();
+        toast("Added to your " + pageNames[activePage].toLowerCase() + ".");
+      }
+      function toggleTask(id, checked) {
+        const task = getTasks().find((item) => Number(item.id) === Number(id));
+        if (!task) return;
+        task.done = checked;
+        save();
+        render();
+      }
+      function deleteItem(value) {
+        const [key, id] = value.split(":");
+        if (!data[key]) return;
+        data[key] = data[key].filter((item) => String(item.id) !== id);
+        save();
+        render();
+        toast("Item removed.");
+      }
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        const nav = target.closest("[data-page]");
+        if (nav) { navigate(nav.dataset.page); return; }
+        const pageLink = target.closest("[data-page-link]");
+        if (pageLink) { navigate(pageLink.dataset.pageLink); return; }
+        if (target.closest("[data-action='add']") || target.closest("#header-add") || target.closest("#focus-button")) { showModal(); return; }
+        const deleteTarget = target.closest("[data-delete]");
+        if (deleteTarget) { deleteItem(deleteTarget.dataset.delete); return; }
+        if (target.closest("[data-close]") || (target.matches("[data-dismiss]"))) { document.getElementById("modal-root").innerHTML = ""; return; }
+      });
+      document.addEventListener("change", (event) => {
+        const checkbox = event.target.closest("[data-task-check]");
+        if (checkbox) toggleTask(checkbox.dataset.taskCheck, checkbox.checked);
+      });
+      document.addEventListener("submit", (event) => {
+        if (event.target.id === "item-form") { event.preventDefault(); saveForm(event.target); }
+      });
+      document.getElementById("menu-button").addEventListener("click", () => document.getElementById("sidebar").classList.toggle("open"));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") document.getElementById("modal-root").innerHTML = "";
+      });
+      render();
+    }());
+  </script>
+</body>
+</html>
